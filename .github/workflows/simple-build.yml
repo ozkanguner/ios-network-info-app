@@ -1,4 +1,4 @@
-name: Simple React Native Build
+name: React Native Build (iOS + Android)
 
 on:
   push:
@@ -51,6 +51,52 @@ jobs:
         name: android-build-logs
         path: NetworkInfoAppRN/android/app/build/outputs/
 
+  build-ios:
+    runs-on: macos-14
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '24'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: |
+        cd NetworkInfoAppRN
+        npm ci
+    
+    - name: Install iOS dependencies
+      run: |
+        cd NetworkInfoAppRN/ios
+        pod install
+        cd ..
+    
+    - name: Build iOS
+      run: |
+        cd NetworkInfoAppRN/ios
+        xcodebuild -workspace NetworkInfoAppRN.xcworkspace \
+                   -scheme NetworkInfoAppRN \
+                   -configuration Debug \
+                   -destination generic/platform=iOS \
+                   -derivedDataPath build \
+                   clean build
+        cd ..
+    
+    - name: Upload iOS build
+      uses: actions/upload-artifact@v4
+      with:
+        name: ios-build
+        path: NetworkInfoAppRN/ios/build/
+    
+    - name: Upload iOS logs
+      uses: actions/upload-artifact@v4
+      with:
+        name: ios-build-logs
+        path: NetworkInfoAppRN/ios/
+
   test:
     runs-on: ubuntu-latest
     
@@ -79,3 +125,37 @@ jobs:
       with:
         name: test-results
         path: NetworkInfoAppRN/
+
+  deploy:
+    needs: [build-android, build-ios, test]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts/
+    
+    - name: Create release summary
+      run: |
+        echo "## 🚀 React Native Network Info App Build Complete!" > release-summary.md
+        echo "" >> release-summary.md
+        echo "### 📱 Android APK" >> release-summary.md
+        echo "- Debug APK: artifacts/android-debug-apk/" >> release-summary.md
+        echo "- Build Logs: artifacts/android-build-logs/" >> release-summary.md
+        echo "" >> release-summary.md
+        echo "### 🍎 iOS Build" >> release-summary.md
+        echo "- iOS Build: artifacts/ios-build/" >> release-summary.md
+        echo "- Build Logs: artifacts/ios-build-logs/" >> release-summary.md
+        echo "" >> release-summary.md
+        echo "### ✅ Test Results" >> release-summary.md
+        echo "- Test Results: artifacts/test-results/" >> release-summary.md
+        echo "" >> release-summary.md
+        echo "**Build #${{ github.run_number }} completed successfully!**" >> release-summary.md
+    
+    - name: Upload release summary
+      uses: actions/upload-artifact@v4
+      with:
+        name: release-summary
+        path: release-summary.md
