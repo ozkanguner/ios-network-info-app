@@ -183,3 +183,5 @@ Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için `LICENSE` dosy
 ---
 
 **⭐ Bu projeyi beğendiyseniz yıldız vermeyi unutmayın!**
+
+**🚀 React Native Workflow Aktif - Build #7 Bekleniyor!**
