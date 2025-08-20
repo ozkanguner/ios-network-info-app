@@ -61,7 +61,7 @@ class ViewController: UIViewController {
         sendToAPIButton.layer.cornerRadius = 8
         sendToAPIButton.addTarget(self, action: #selector(sendToAPIButtonTapped), for: .touchUpInside)
         contentView.addSubview(sendToAPIButton)
-        sendToAPIButton.translatesAutiresizingMaskIntoConstraints = false
+        sendToAPIButton.translatesAutoresizingMaskIntoConstraints = false
         
         // Send to Mock Button
         sendToMockButton.setTitle("Mock API'ye Gönder", for: .normal)

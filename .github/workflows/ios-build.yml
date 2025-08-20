@@ -25,9 +25,8 @@ jobs:
       run: |
         cd NetworkInfoApp
         xcodebuild -project NetworkInfoApp.xcodeproj \
-                   -scheme NetworkInfoApp \
+                   -target NetworkInfoApp \
                    -sdk iphonesimulator \
-                   -destination 'platform=iOS Simulator,name=iPhone 15' \
                    -configuration Debug \
                    clean build
     
