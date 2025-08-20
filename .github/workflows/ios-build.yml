@@ -1,0 +1,38 @@
+name: iOS Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: macos-14
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Select Xcode version
+      run: sudo xcode-select -s /Applications/Xcode_15.4.app/Contents/Developer
+    
+    - name: List available schemes
+      run: |
+        cd NetworkInfoApp
+        xcodebuild -list -project NetworkInfoApp.xcodeproj
+    
+    - name: Build iOS App
+      run: |
+        cd NetworkInfoApp
+        xcodebuild -project NetworkInfoApp.xcodeproj \
+                   -target NetworkInfoApp \
+                   -sdk iphonesimulator \
+                   -configuration Debug \
+                   clean build
+    
+    - name: Archive build artifacts
+      uses: actions/upload-artifact@v4
+      if: success()
+      with:
+        name: ios-build
+        path: NetworkInfoApp/build/
